@@ -3,592 +3,448 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>20-Week Chit Fund Calculator & Schedule Planner</title>
-  <!-- Tailwind CSS CDN -->
+  <title>20-Week Chit Schedule Planner</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome CDN for clean icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap');
     
     body {
       font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
     }
     .mono-num {
       font-family: 'JetBrains Mono', monospace;
     }
-    /* Spreadsheet style table borders */
     .sheet-table th, .sheet-table td {
-      border: 1px solid #1f2937;
+      border: 1px solid #111827;
     }
-    @media print {
-      .no-print {
-        display: none !important;
-      }
-      body {
-        background-color: white !important;
-        padding: 0 !important;
-      }
-      .sheet-container {
-        box-shadow: none !important;
-        border: none !important;
-        width: 100% !important;
-        max-width: 100% !important;
-      }
+    .table-container::-webkit-scrollbar {
+      height: 8px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background-color: #94a3b8;
+      border-radius: 4px;
     }
   </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 p-3 sm:p-6 lg:p-8">
+<body class="text-slate-900 p-3 sm:p-6 lg:p-8 min-h-screen">
 
-  <div class="max-w-7xl mx-auto space-y-6">
-
-    <!-- Header Section -->
-    <header class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="p-2.5 bg-emerald-600 text-white rounded-xl shadow-md flex items-center justify-center">
-            <i class="fa-solid fa-calculator text-lg"></i>
-          </span>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">20-Week Chit Schedule & Planner</h1>
-        </div>
-        <p class="text-slate-500 text-sm mt-1">Interactive weekly installment breakdown, month groupings, and multi-chit returns.</p>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="flex items-center gap-2 flex-wrap w-full md:w-auto no-print">
-        <button id="resetBtn" class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold transition active:scale-95 shadow-sm">
-          <i class="fa-solid fa-rotate-left text-xs"></i> Reset Values
-        </button>
-        <button id="exportCsvBtn" class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-emerald-600 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-sm font-semibold transition active:scale-95 shadow-sm">
-          <i class="fa-solid fa-file-excel text-xs"></i> Export CSV
-        </button>
-        <button id="printBtn" class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition active:scale-95 shadow-md">
-          <i class="fa-solid fa-print text-xs"></i> Print Sheet
-        </button>
-      </div>
-    </header>
-
-    <!-- Interactive Controls Bar -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 no-print">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-        
-        <!-- Start Date Control -->
+  <div class="max-w-7xl mx-auto space-y-5">
+    <!-- Top Control Bar (Single-Screen) -->
+    <header class="bg-white rounded-2xl shadow-sm border border-slate-300 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      
+      <!-- Title -->
+      <div class="flex items-center gap-3">
+        <span class="p-2.5 bg-emerald-600 text-white rounded-xl shadow-sm flex items-center justify-center">
+          <i class="fa-solid fa-table-cells text-lg"></i>
+        </span>
         <div>
-          <label for="startDateInput" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">20-Week Chit Schedule</h1>
+          <p class="text-xs text-slate-500 font-medium">Select a start date to generate the schedule & month groupings</p>
+        </div>
+      </div>
+
+      <!-- Controls Row -->
+      <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <!-- Start Date Input -->
+        <div class="flex flex-col">
+          <label for="startDateInput" class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
             <i class="fa-regular fa-calendar-days text-emerald-600 mr-1"></i> Starting Date
           </label>
-          <input type="date" id="startDateInput" value="2026-07-24"
-            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition">
+          <input type="date" id="startDateInput"
+            class="px-3 py-2 bg-slate-50 border-2 border-emerald-500 rounded-lg font-semibold text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
         </div>
 
-        <!-- Number of Chits Control -->
-        <div>
-          <label for="numChitsInput" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5 flex items-center justify-between">
-            <span><i class="fa-solid fa-layer-group text-emerald-600 mr-1"></i> Number of Chits</span>
-            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full border-2 border-red-500 text-red-600 font-extrabold text-xs">N</span>
+        <!-- Dynamic Chits Stepper (Defaults to 1) -->
+        <div class="flex flex-col">
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+            <i class="fa-solid fa-layer-group text-emerald-600 mr-1"></i> No. of Chits
           </label>
           <div class="flex items-center">
-            <button id="decrementChits" class="px-3.5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-l-xl border border-r-0 border-slate-300 active:bg-slate-400 transition">-</button>
-            <input type="number" id="numChitsInput" min="1" max="100" value="4" 
-              class="w-full text-center py-2.5 bg-slate-50 border-y border-slate-300 font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-            <button id="incrementChits" class="px-3.5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-r-xl border border-l-0 border-slate-300 active:bg-slate-400 transition">+</button>
+            <button id="decChitsBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-l-lg border border-r-0 border-slate-300 text-sm transition">-</button>
+            <input type="number" id="numChitsInput" min="1" max="100" value="1" readonly
+              class="w-14 text-center py-2 bg-white border-y border-slate-300 font-extrabold text-slate-900 text-sm focus:outline-none">
+            <button id="incChitsBtn" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-r-lg border border-l-0 border-slate-300 text-sm transition">+</button>
           </div>
         </div>
 
-        <!-- Chit Face Value info -->
-        <!-- <div>
-          <label for="faceValueInput" class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-            <i class="fa-solid fa-indian-rupee-sign text-emerald-600 mr-1"></i> Scheme Value per Chit
-          </label>
-          <input type="number" id="faceValueInput" value="20000" step="500"
-            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
-        </div> -->
-
-        <!-- Toggle Edit Mode -->
-        <div class="flex items-center h-full">
-          <label class="relative flex items-center gap-3 cursor-pointer select-none bg-slate-50 p-2.5 rounded-xl border border-slate-200 w-full hover:bg-slate-100 transition">
-            <input type="checkbox" id="editModeToggle" class="sr-only peer">
-            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[13px] after:left-[13px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-            <span class="text-xs font-bold text-slate-700">Editable Table Values</span>
-          </label>
+        <!-- Export CSV Button -->
+        <div class="flex flex-col justify-end">
+          <label class="text-xs text-transparent mb-1 hidden sm:block">Action</label>
+          <button id="exportCsvBtn" disabled
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold transition active:scale-95 shadow-sm">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+          </button>
         </div>
 
+        <!-- Reset Button -->
+        <div class="flex flex-col justify-end">
+          <label class="text-xs text-transparent mb-1 hidden sm:block">Reset</label>
+          <button id="resetBtn"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-sm font-semibold transition active:scale-95 shadow-sm">
+            <i class="fa-solid fa-rotate-left text-slate-500"></i> Reset
+          </button>
+        </div>
       </div>
+    </header>
+    <!-- Initial Prompt Placeholder (Shown before date selection) -->
+    <div id="emptyState" class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center shadow-sm">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fa-regular fa-calendar-plus text-2xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-800 mb-1">Please select a Starting Date</h3>
+      <p class="text-sm text-slate-500 max-w-md mx-auto">
+        Choose the initial week's start date in the top bar to generate the 20-week schedule, calculate month-wise totals, and compute profit percentages.
+      </p>
     </div>
 
-    <!-- Metric summary cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Paid (1 Chit)</p>
-        <p id="cardTotal1" class="text-2xl font-black text-slate-900 mt-1 mono-num">₹16,969</p>
-        <span class="text-xs text-slate-500 mt-1 block">Full 20-week installment sum</span>
-      </div>
-
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Paid (<span class="card-chits-count">4</span> Chits)</p>
-        <p id="cardTotalN" class="text-2xl font-black text-slate-900 mt-1 mono-num">₹67,876</p>
-        <span class="text-xs text-slate-500 mt-1 block">Accumulated total for all chits</span>
-      </div>
-
-      <div class="bg-white rounded-2xl border border-blue-200 p-4 shadow-sm bg-blue-50/40">
-        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">Net Profit (1 Chit)</p>
-        <p id="cardProfit1" class="text-2xl font-black text-blue-700 mt-1 mono-num">₹2,511</p>
-        <span class="text-xs text-blue-600 mt-1 block">Last prize minus total paid</span>
-      </div>
-
-      <div class="bg-white rounded-2xl border border-blue-200 p-4 shadow-sm bg-blue-50/40">
-        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">Net Profit (<span class="card-chits-count">4</span> Chits)</p>
-        <p id="cardProfitN" class="text-2xl font-black text-blue-700 mt-1 mono-num">₹10,044</p>
-        <span class="text-xs text-blue-600 mt-1 block">Total dividend profit realized</span>
-      </div>
-    </div>
-
-    <!-- Spreadsheet Sheet Canvas -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-300 p-4 sm:p-6 overflow-hidden sheet-container">
-      
-      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <div class="flex items-center gap-2">
-          <span class="h-3 w-3 rounded-full bg-emerald-500"></span>
-          <h2 class="text-base font-bold text-slate-800 uppercase tracking-wide">20-Week Installment & Auction Ledger</h2>
-        </div>
-        <div class="text-xs text-slate-500 font-medium">
-          Dates advance weekly (+7 days) & grouped by calendar month
-        </div>
-      </div>
-
-      <!-- Responsive Horizontal Overflow Container -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-center border-collapse sheet-table text-sm sm:text-base font-medium">
-          <!-- Main Table Header -->
+    <!-- Main Schedule Table (Hidden until date is picked) -->
+    <div id="tableWrapper" class="hidden bg-white rounded-2xl shadow-sm border border-slate-300 overflow-hidden">
+      <div class="overflow-x-auto table-container p-4 sm:p-6">
+        <table class="w-full text-center border-collapse sheet-table text-sm sm:text-base font-medium min-w-[960px]">
+          
+          <!-- Table Header -->
           <thead>
-            <tr class="bg-white text-slate-900 font-bold border-b border-black">
-              <!-- Left side: 1 Chit -->
-              <th class="py-2.5 px-3 w-16">S No</th>
-              <th class="py-2.5 px-4 w-32">Day</th>
-              <th class="py-2.5 px-4 w-28">Amount</th>
-              <th class="py-2.5 px-4 w-32 border-r-2 border-black"></th>
+            <tr class="bg-white text-slate-900 font-bold">
+              <th class="py-2.5 px-2 w-12 bg-slate-50">S No</th>
+              <th class="py-2.5 px-3 w-32 bg-slate-50">Day</th>
               
-              <!-- Center: Month Grouped Subtotals -->
-              <th colspan="2" class="py-2 px-6 bg-slate-100 border-x-2 border-black font-semibold text-xs uppercase tracking-wider text-slate-700">
-                Monthly Aggregate
+              <!-- 1 Chit Base Columns -->
+              <th class="py-2.5 px-3 w-24 bg-slate-50">Amount</th>
+              <th class="py-2.5 px-3 w-28 bg-slate-50">Prize</th>
+              <th class="py-2.5 px-2 min-w-[135px] bg-slate-50 text-xs uppercase tracking-wide">Profit (Amt / %)</th>
+              
+              <!-- Month Group Columns -->
+              <th colspan="2" class="py-2.5 px-4 bg-slate-100 text-xs uppercase tracking-wider font-extrabold border-x-2 border-black">
+                Month Total
               </th>
-
-              <!-- Right side: Dynamic N Chits with red circled badge -->
-              <th class="py-2.5 px-4 w-32 text-center relative">
-                <div class="flex items-center justify-center gap-1.5">
-                  <div class="w-7 h-7 rounded-full border-2 border-red-600 text-red-600 font-black text-sm flex items-center justify-center mx-auto shadow-sm">
-                    <span id="badgeNumChits">4</span>
-                  </div>
+              
+              <!-- N Chits Columns with Red Circular Badge -->
+              <th class="py-2.5 px-3 w-28 bg-slate-50 relative">
+                Amount
+                <!-- Red Circle Indicator exactly matching reference -->
+                <div id="badgeNumChits" class="absolute -top-3.5 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full border-2 border-red-600 text-red-600 font-black text-xs flex items-center justify-center bg-white shadow-sm z-10">
+                  1
                 </div>
               </th>
-              <th class="py-2.5 px-4 w-32"></th>
+              <th class="py-2.5 px-3 w-28 bg-slate-50">Prize</th>
+              <th class="py-2.5 px-2 min-w-[135px] bg-slate-50 text-xs uppercase tracking-wide">Profit (Amt / %)</th>
             </tr>
           </thead>
-
-          <!-- Table Body rendered via JavaScript -->
-          <tbody id="chitTableBody" class="divide-y divide-black">
-            <!-- Dynamic rows will be inserted here -->
+          <!-- Dynamic Table Rows -->
+          <tbody id="tableBody" class="text-slate-900 font-medium">
+            <!-- Dynamically populated rows -->
           </tbody>
 
-          <!-- Table Footer matching the original sheet -->
-          <tfoot class="font-bold border-t-2 border-black">
-            <!-- Row for Grand Totals -->
-            <tr class="bg-white">
+          <!-- Table Footer matching reference -->
+          <tfoot class="font-bold border-t-2 border-black bg-white">
+            <!-- Row 1: Total Paid -->
+            <tr>
               <td colspan="2" class="border-transparent"></td>
-              <td id="grandTotal1" class="py-3 px-3 text-slate-900 mono-num text-base sm:text-lg border-x border-black bg-slate-50 font-bold">16969</td>
-              <td colspan="3" class="border-transparent"></td>
-              <td id="grandTotalN" class="py-3 px-3 text-slate-900 mono-num text-base sm:text-lg border-x border-black bg-slate-50 font-bold">67876</td>
-              <td class="border-transparent"></td>
+              <td id="footTotal1" class="py-2.5 px-3 mono-num text-lg border border-black bg-slate-50">0</td>
+              <td colspan="4" class="border-transparent"></td>
+              <td id="footTotalN" class="py-2.5 px-3 mono-num text-lg border border-black bg-slate-50">0</td>
+              <td colspan="2" class="border-transparent"></td>
             </tr>
-            <!-- Row for Profit Highlight -->
-            <tr class="bg-white">
-              <td colspan="2" class="border-transparent text-right pr-4 text-blue-600 font-bold text-base">Profit</td>
-              <td id="grandProfit1" class="py-2 px-3 text-blue-600 mono-num text-lg sm:text-xl font-extrabold border-x border-black bg-blue-50/30">2511</td>
-              <td colspan="3" class="border-transparent"></td>
-              <td class="py-2 px-3 text-blue-600 font-bold text-base text-right border-l border-transparent">Profit</td>
-              <td id="grandProfitN" class="py-2 px-3 text-blue-600 mono-num text-lg sm:text-xl font-extrabold border-r border-black bg-blue-50/30 text-center">10044</td>
+            <!-- Row 2: Net Profit & Net Profit % -->
+            <tr>
+              <td colspan="2" class="border-transparent text-right pr-3 text-blue-600 text-base font-bold">Profit</td>
+              <td id="footProfit1" class="py-2 px-3 mono-num text-lg text-blue-700 border border-black bg-blue-50/50">0</td>
+              <td class="border-transparent"></td>
+              <td id="footProfitPct1" class="py-2 px-2 mono-num text-sm border border-black bg-emerald-50/50">0%</td>
+              <td colspan="2" class="border-transparent"></td>
+              <td class="py-2 px-3 text-right pr-3 text-blue-600 text-base font-bold border-transparent">Profit</td>
+              <td id="footProfitN" class="py-2 px-3 mono-num text-lg text-blue-700 border border-black bg-blue-50/50">0</td>
+              <td id="footProfitPctN" class="py-2 px-2 mono-num text-sm border border-black bg-emerald-50/50">0%</td>
             </tr>
           </tfoot>
+
         </table>
       </div>
-
-      <!-- Bottom Hint and legend -->
-      <div class="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-500 gap-2 border-t pt-3">
-        <div class="flex items-center gap-4 flex-wrap">
-          <span class="flex items-center gap-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-[#97c482] border border-black/30"></span> Soft Green Month
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-white border border-black/30"></span> White Month
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-[#fff033] border border-black/30"></span> Company First Prize
-          </span>
-        </div>
-        <div>
-          <span>Formula: <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">Profit = Last Prize - Total Paid</code></span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Notification Toast for Copied/Exported -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl transform translate-y-20 opacity-0 transition duration-300 pointer-events-none flex items-center gap-2 text-sm z-50">
-      <i class="fa-solid fa-circle-check text-emerald-400"></i>
-      <span id="toastMsg">Action completed successfully</span>
     </div>
 
   </div>
 
+  <!-- Subtle Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2 text-sm z-50">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">Updated</span>
+  </div>
   <script>
-    // 20-week initial base model exactly mirroring the provided sheet
-    const INITIAL_BASE_DATA = [
-      { sNo: 1,  amount: 1000, prize: 'Company' },
-      { sNo: 2,  amount: 725,  prize: 14000 },
-      { sNo: 3,  amount: 735,  prize: 14200 },
-      { sNo: 4,  amount: 745,  prize: 14400 },
-      { sNo: 5,  amount: 755,  prize: 14600 },
-      { sNo: 6,  amount: 785,  prize: 15200 },
-      { sNo: 7,  amount: 795,  prize: 15400 },
-      { sNo: 8,  amount: 815,  prize: 15800 },
-      { sNo: 9,  amount: 825,  prize: 16000 },
-      { sNo: 10, amount: 835,  prize: 16200 },
-      { sNo: 11, amount: 845,  prize: 16400 },
-      { sNo: 12, amount: 855,  prize: 16600 },
-      { sNo: 13, amount: 855,  prize: 16600 },
-      { sNo: 14, amount: 855,  prize: 16600 },
-      { sNo: 15, amount: 865,  prize: 16800 },
-      { sNo: 16, amount: 875,  prize: 17000 },
-      { sNo: 17, amount: 895,  prize: 17400 },
-      { sNo: 18, amount: 915,  prize: 17800 },
-      { sNo: 19, amount: 995,  prize: 19400 },
-      { sNo: 20, amount: 999,  prize: 19480 }
+    // 20-week base data mapped from the reference sheet
+    const BASE_DATA = [
+      { sNo: 1, amount: 1000, prize: 'Company' },
+      { sNo: 2, amount: 725, prize: 14000 },
+      { sNo: 3, amount: 735, prize: 14200 },
+      { sNo: 4, amount: 745, prize: 14400 },
+      { sNo: 5, amount: 755, prize: 14600 },
+      { sNo: 6, amount: 785, prize: 15200 },
+      { sNo: 7, amount: 795, prize: 15400 },
+      { sNo: 8, amount: 815, prize: 15800 },
+      { sNo: 9, amount: 825, prize: 16000 },
+      { sNo: 10, amount: 835, prize: 16200 },
+      { sNo: 11, amount: 845, prize: 16400 },
+      { sNo: 12, amount: 855, prize: 16600 },
+      { sNo: 13, amount: 855, prize: 16600 },
+      { sNo: 14, amount: 855, prize: 16600 },
+      { sNo: 15, amount: 865, prize: 16800 },
+      { sNo: 16, amount: 875, prize: 17000 },
+      { sNo: 17, amount: 895, prize: 17400 },
+      { sNo: 18, amount: 915, prize: 17800 },
+      { sNo: 19, amount: 995, prize: 19400 },
+      { sNo: 20, amount: 999, prize: 19480 }
     ];
 
-    // State management
-    let chitData = JSON.parse(JSON.stringify(INITIAL_BASE_DATA));
-    let startDate = '2026-07-24';
-    let numChits = 4;
-    let editMode = false;
+    const BASE_TOTAL_PAID = BASE_DATA.reduce((acc, curr) => acc + curr.amount, 0); // 16969
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // Application State
+    let state = {
+      startDate: null,
+      numChits: 1
+    };
 
     // DOM Elements
-    const startDateInput = document.getElementById('startDateInput');
-    const numChitsInput = document.getElementById('numChitsInput');
-    const badgeNumChits = document.getElementById('badgeNumChits');
-    const editModeToggle = document.getElementById('editModeToggle');
-    const chitTableBody = document.getElementById('chitTableBody');
-    const grandTotal1 = document.getElementById('grandTotal1');
-    const grandTotalN = document.getElementById('grandTotalN');
-    const grandProfit1 = document.getElementById('grandProfit1');
-    const grandProfitN = document.getElementById('grandProfitN');
-    const cardTotal1 = document.getElementById('cardTotal1');
-    const cardTotalN = document.getElementById('cardTotalN');
-    const cardProfit1 = document.getElementById('cardProfit1');
-    const cardProfitN = document.getElementById('cardProfitN');
-    const chitsCountSpans = document.querySelectorAll('.card-chits-count');
-    const decrementChitsBtn = document.getElementById('decrementChits');
-    const incrementChitsBtn = document.getElementById('incrementChits');
-    const resetBtn = document.getElementById('resetBtn');
-    const exportCsvBtn = document.getElementById('exportCsvBtn');
-    const printBtn = document.getElementById('printBtn');
-    const toast = document.getElementById('toast');
-    const toastMsg = document.getElementById('toastMsg');
+    const DOM = {
+      startDateInput: document.getElementById('startDateInput'),
+      numChitsInput: document.getElementById('numChitsInput'),
+      decChitsBtn: document.getElementById('decChitsBtn'),
+      incChitsBtn: document.getElementById('incChitsBtn'),
+      exportCsvBtn: document.getElementById('exportCsvBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      emptyState: document.getElementById('emptyState'),
+      tableWrapper: document.getElementById('tableWrapper'),
+      badgeNumChits: document.getElementById('badgeNumChits'),
+      tableBody: document.getElementById('tableBody'),
+      footTotal1: document.getElementById('footTotal1'),
+      footTotalN: document.getElementById('footTotalN'),
+      footProfit1: document.getElementById('footProfit1'),
+      footProfitN: document.getElementById('footProfitN'),
+      footProfitPct1: document.getElementById('footProfitPct1'),
+      footProfitPctN: document.getElementById('footProfitPctN'),
+      toast: document.getElementById('toast'),
+      toastMsg: document.getElementById('toastMsg')
+    };
 
-    // Month abbreviation list
-    const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    // Helper: Formats a date object to "D-MMM-YYYY" e.g., "24-Jul-2026"
-    function formatSheetDate(d) {
-      const day = d.getDate();
-      const month = MONTH_NAMES[d.getMonth()];
-      const year = d.getFullYear();
-      return `${day}-${month}-${year}`;
-    }
-
-    // Helper: Safely parses date string yyyy-mm-dd into local Date
-    function parseLocalDate(dateStr) {
-      const parts = dateStr.split('-');
-      return new Date(parts[0], parts[1] - 1, parts[2]);
-    }
-
-    // Helper: Display Toast Notification
-    function showToast(message) {
-      toastMsg.textContent = message;
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
+    function showToast(msg) {
+      DOM.toastMsg.textContent = msg;
+      DOM.toast.classList.remove('translate-y-20', 'opacity-0');
       setTimeout(() => {
-        toast.classList.add('translate-y-20', 'opacity-0');
-        toast.classList.remove('translate-y-0', 'opacity-100');
+        DOM.toast.classList.add('translate-y-20', 'opacity-0');
       }, 2500);
     }
-
-    function computeSchedule() {
-      const baseDate = parseLocalDate(startDate);
-      const schedule = [];
-
-      for (let i = 0; i < chitData.length; i++) {
-        const item = chitData[i];
-        // Weekly advance: + 7 * i days
-        const currentDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + (i * 7));
-        const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
-        const monthLabel = MONTH_NAMES[currentDate.getMonth()];
-        const formattedDate = formatSheetDate(currentDate);
-
-        schedule.push({
-          sNo: item.sNo,
-          dateObj: currentDate,
-          formattedDate: formattedDate,
-          monthKey: monthKey,
-          monthLabel: monthLabel,
-          amount1: Number(item.amount) || 0,
-          prize1: item.prize,
-          amountN: (Number(item.amount) || 0) * numChits,
-          prizeN: typeof item.prize === 'number' ? item.prize * numChits : item.prize
-        });
-      }
-
-      // Group contiguous items belonging to the same month for rowspan calculations
-      const monthGroups = [];
-      let currentGroup = null;
-
-      schedule.forEach((row, index) => {
-        if (!currentGroup || currentGroup.monthKey !== row.monthKey) {
-          if (currentGroup) monthGroups.push(currentGroup);
-          currentGroup = {
-            monthKey: row.monthKey,
-            monthLabel: row.monthLabel,
-            startIndex: index,
-            count: 1,
-            sumAmount1: row.amount1,
-            sumAmountN: row.amountN
-          };
-        } else {
-          currentGroup.count++;
-          currentGroup.sumAmount1 += row.amount1;
-          currentGroup.sumAmountN += row.amountN;
-        }
-      });
-      if (currentGroup) monthGroups.push(currentGroup);
-
-      // Attach group metadata to each schedule row
-      monthGroups.forEach((group, groupIdx) => {
-        const isAlternateMonth = (groupIdx % 2 === 1); // 0=first month (Jul: green), 1=white, 2=green, etc.
-        for (let idx = group.startIndex; idx < group.startIndex + group.count; idx++) {
-          schedule[idx].isGroupStart = (idx === group.startIndex);
-          schedule[idx].groupSpan = group.count;
-          schedule[idx].groupSum1 = group.sumAmount1;
-          schedule[idx].groupSumN = group.sumAmountN;
-          schedule[idx].groupBgColor = isAlternateMonth ? 'bg-white' : 'bg-[#97c482]';
-          schedule[idx].groupColorClass = isAlternateMonth ? 'month-white' : 'month-green';
-        }
-      });
-
-      return schedule;
+    // Format Date: 24-Jul-2026
+    function formatDate(date) {
+      return `${date.getDate()}-${MONTHS[date.getMonth()]}-${date.getFullYear()}`;
     }
 
-    function renderTable() {
-      const schedule = computeSchedule();
-      badgeNumChits.textContent = numChits;
-      chitsCountSpans.forEach(el => el.textContent = numChits);
+    // Profit & Loss Formatter: amount (%)
+    // Positive values -> Bold Green (+amount (+X.XX%)), Negative values -> Bold Red (-amount (-X.XX%))
+    function renderProfitPercentage(prize, totalPaid) {
+      if (typeof prize !== 'number') {
+        return `<span class="text-slate-400 font-semibold">—</span>`;
+      }
+      const diff = prize - totalPaid;
+      const pct = ((diff / totalPaid) * 100).toFixed(2);
+      const absDiff = Math.abs(diff);
 
-      let totalPaid1 = 0;
-      let totalPaidN = 0;
-      let lastPrize1 = 0;
-      let lastPrizeN = 0;
+      if (diff > 0) {
+        return `<span class="text-emerald-700 font-bold whitespace-nowrap">+${absDiff} (+${pct}%)</span>`;
+      } else if (diff < 0) {
+        return `<span class="text-rose-600 font-bold whitespace-nowrap">-${absDiff} (${pct}%)</span>`;
+      }
+      return `<span class="text-slate-700 font-bold whitespace-nowrap">0 (0.00%)</span>`;
+    }
+
+    function calculateSchedule() {
+      if (!state.startDate) return null;
+
+      const [y, m, d] = state.startDate.split('-').map(Number);
+      const start = new Date(y, m - 1, d);
+
+      const totalPaid1 = BASE_TOTAL_PAID;
+      const totalPaidN = BASE_TOTAL_PAID * state.numChits;
+
+      // Generate week rows
+      const schedule = BASE_DATA.map((item, index) => {
+        const currentDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() + (index * 7));
+        return {
+          sNo: item.sNo,
+          dateStr: formatDate(currentDate),
+          monthKey: `${currentDate.getFullYear()}-${currentDate.getMonth()}`,
+          amount1: item.amount,
+          prize1: item.prize,
+          amountN: item.amount * state.numChits,
+          prizeN: typeof item.prize === 'number' ? item.prize * state.numChits : item.prize
+        };
+      });
+
+      // Group consecutive rows falling into the same calendar month
+      let currentGroup = null;
+      let monthColorToggle = 0;
+
+      schedule.forEach((row, i) => {
+        if (!currentGroup || currentGroup.key !== row.monthKey) {
+          currentGroup = {
+            key: row.monthKey,
+            startIndex: i,
+            count: 1,
+            sum1: row.amount1,
+            sumN: row.amountN,
+            colorClass: monthColorToggle % 2 === 0 ? 'bg-[#97c482]' : 'bg-white' // Soft Green vs White
+          };
+          row.isGroupStart = true;
+          row.group = currentGroup;
+          monthColorToggle++;
+        } else {
+          currentGroup.count++;
+          currentGroup.sum1 += row.amount1;
+          currentGroup.sumN += row.amountN;
+          row.isGroupStart = false;
+          row.group = currentGroup;
+        }
+      });
+
+      return { schedule, totalPaid1, totalPaidN };
+    }
+    function render() {
+      if (!state.startDate) {
+        DOM.emptyState.classList.remove('hidden');
+        DOM.tableWrapper.classList.add('hidden');
+        DOM.exportCsvBtn.disabled = true;
+        return;
+      }
+
+      // Show table, hide placeholder
+      DOM.emptyState.classList.add('hidden');
+      DOM.tableWrapper.classList.remove('hidden');
+      DOM.exportCsvBtn.disabled = false;
+
+      const data = calculateSchedule();
+      if (!data) return;
+
+      const { schedule, totalPaid1, totalPaidN } = data;
+
+      // Update Chit badge and input
+      DOM.badgeNumChits.textContent = state.numChits;
+      DOM.numChitsInput.value = state.numChits;
 
       let html = '';
+      let finalPrize1 = 0;
+      let finalPrizeN = 0;
 
-      schedule.forEach((row, index) => {
-        totalPaid1 += row.amount1;
-        totalPaidN += row.amountN;
-
-        if (index === schedule.length - 1) {
-          lastPrize1 = typeof row.prize1 === 'number' ? row.prize1 : 0;
-          lastPrizeN = typeof row.prizeN === 'number' ? row.prizeN : 0;
+      schedule.forEach((row, idx) => {
+        if (idx === schedule.length - 1) {
+          finalPrize1 = typeof row.prize1 === 'number' ? row.prize1 : 0;
+          finalPrizeN = typeof row.prizeN === 'number' ? row.prizeN : 0;
         }
 
-        // Color styles matching spreadsheet
-        const rowBg = row.groupBgColor;
-        const isFirstWeek = row.sNo === 1;
-        const yellowPrizeBg = isFirstWeek ? 'bg-[#fff033] text-black font-semibold' : '';
+        const isWeek1 = row.sNo === 1;
+        const yellowCompanyBg = isWeek1 ? 'bg-[#fff033] font-bold' : '';
 
-        html += `<tr class="${rowBg} hover:opacity-95 transition-colors">`;
-
-        // 1. S No
-        html += `<td class="py-2 px-2 border border-black font-medium">${row.sNo}</td>`;
-
-        // 2. Day
-        html += `<td class="py-2 px-3 border border-black whitespace-nowrap text-slate-900">${row.formattedDate}</td>`;
-
-        // 3. Amount (1 Chit)
-        if (editMode) {
-          html += `<td class="py-1 px-1 border border-black">
-            <input type="number" data-index="${index}" data-field="amount" value="${chitData[index].amount}" 
-              class="w-full text-center py-1 bg-white border border-slate-300 rounded font-semibold text-slate-900 focus:ring-1 focus:ring-emerald-500">
-          </td>`;
-        } else {
-          html += `<td class="py-2 px-3 border border-black mono-num font-semibold text-slate-900">${row.amount1}</td>`;
-        }
-
-        // 4. Prize (1 Chit)
-        if (editMode && !isFirstWeek) {
-          html += `<td class="py-1 px-1 border border-black border-r-2 ${yellowPrizeBg}">
-            <input type="number" data-index="${index}" data-field="prize" value="${chitData[index].prize}" 
-              class="w-full text-center py-1 bg-white border border-slate-300 rounded font-semibold text-slate-900 focus:ring-1 focus:ring-emerald-500">
-          </td>`;
-        } else {
-          html += `<td class="py-2 px-3 border border-black border-r-2 ${yellowPrizeBg} mono-num">${row.prize1}</td>`;
-        }
-
-        // 5 & 6. Month Summary Columns (rowspan cells inserted on first week of each month)
+        html += `<tr class="${row.group.colorClass} hover:brightness-95 transition-all">`;
+        
+        // S No & Day
+        html += `<td class="py-2 px-2 border border-black">${row.sNo}</td>`;
+        html += `<td class="py-2 px-3 border border-black whitespace-nowrap">${row.dateStr}</td>`;
+        
+        // 1 Chit: Amount, Prize, Profit %
+        html += `<td class="py-2 px-2 border border-black mono-num">${row.amount1}</td>`;
+        html += `<td class="py-2 px-2 border border-black mono-num ${yellowCompanyBg}">${row.prize1}</td>`;
+        html += `<td class="py-2 px-1 border border-black mono-num text-xs sm:text-sm bg-inherit">${renderProfitPercentage(row.prize1, totalPaid1)}</td>`;
+        
+        // Month Group Columns (Rendered only on group start with rowspan)
         if (row.isGroupStart) {
-          html += `
-            <td rowspan="${row.groupSpan}" class="py-2 px-3 border border-black border-l-2 align-middle mono-num font-bold text-slate-900 text-base sm:text-lg bg-inherit">
-              ${row.groupSum1}
-            </td>
-            <td rowspan="${row.groupSpan}" class="py-2 px-3 border border-black border-r-2 align-middle mono-num font-bold text-slate-900 text-base sm:text-lg bg-inherit">
-              ${row.groupSumN}
-            </td>
-          `;
+          html += `<td rowspan="${row.group.count}" class="py-2 px-3 border border-black align-middle mono-num font-bold text-base bg-inherit">${row.group.sum1}</td>`;
+          html += `<td rowspan="${row.group.count}" class="py-2 px-3 border border-black align-middle mono-num font-bold text-base bg-inherit">${row.group.sumN}</td>`;
         }
 
-        // 7. Amount (N Chits)
-        html += `<td class="py-2 px-3 border border-black mono-num font-bold text-slate-900">${row.amountN}</td>`;
-
-        // 8. Prize (N Chits)
-        html += `<td class="py-2 px-3 border border-black mono-num font-semibold text-slate-900 ${yellowPrizeBg}">
-          ${row.prizeN}
-        </td>`;
-
+        // N Chits: Amount, Prize, Profit %
+        html += `<td class="py-2 px-2 border border-black mono-num font-bold">${row.amountN}</td>`;
+        html += `<td class="py-2 px-2 border border-black mono-num ${yellowCompanyBg}">${row.prizeN}</td>`;
+        html += `<td class="py-2 px-1 border border-black mono-num text-xs sm:text-sm bg-inherit">${renderProfitPercentage(row.prizeN, totalPaidN)}</td>`;
+        
         html += `</tr>`;
       });
 
-      chitTableBody.innerHTML = html;
+      DOM.tableBody.innerHTML = html;
 
-      // Profit calculations
-      const profit1 = lastPrize1 - totalPaid1;
-      const profitN = lastPrizeN - totalPaidN;
+      // Update Footers: Totals and Net Profit (Blue)
+      const netProfit1 = finalPrize1 - totalPaid1;
+      const netProfitN = finalPrizeN - totalPaidN;
 
-      // Update grand totals in footer
-      grandTotal1.textContent = totalPaid1.toLocaleString('en-IN');
-      grandTotalN.textContent = totalPaidN.toLocaleString('en-IN');
-      grandProfit1.textContent = profit1.toLocaleString('en-IN');
-      grandProfitN.textContent = profitN.toLocaleString('en-IN');
+      DOM.footTotal1.textContent = totalPaid1;
+      DOM.footTotalN.textContent = totalPaidN;
+      DOM.footProfit1.textContent = netProfit1;
+      DOM.footProfitN.textContent = netProfitN;
 
-      // Update Top Summary Cards
-      cardTotal1.textContent = `₹${totalPaid1.toLocaleString('en-IN')}`;
-      cardTotalN.textContent = `₹${totalPaidN.toLocaleString('en-IN')}`;
-      cardProfit1.textContent = `₹${profit1.toLocaleString('en-IN')}`;
-      cardProfitN.textContent = `₹${profitN.toLocaleString('en-IN')}`;
-
-      // Wire up inline input listeners if in edit mode
-      if (editMode) {
-        chitTableBody.querySelectorAll('input').forEach(input => {
-          input.addEventListener('input', (e) => {
-            const idx = parseInt(e.target.dataset.index, 10);
-            const field = e.target.dataset.field;
-            const val = field === 'amount' || field === 'prize' ? Number(e.target.value) || 0 : e.target.value;
-            chitData[idx][field] = val;
-            renderTable();
-          });
-        });
-      }
+      DOM.footProfitPct1.innerHTML = renderProfitPercentage(finalPrize1, totalPaid1);
+      DOM.footProfitPctN.innerHTML = renderProfitPercentage(finalPrizeN, totalPaidN);
     }
 
-    // Date change listener
-    startDateInput.addEventListener('change', (e) => {
-      if (e.target.value) {
-        startDate = e.target.value;
-        renderTable();
-        showToast('Start date and weekly schedule updated!');
+    // Event Listeners
+    DOM.startDateInput.addEventListener('change', (e) => {
+      state.startDate = e.target.value;
+      render();
+      if (state.startDate) {
+        showToast('Schedule generated for ' + state.startDate);
       }
     });
 
-    // Num chits change listeners
-    numChitsInput.addEventListener('input', (e) => {
-      let val = parseInt(e.target.value, 10);
-      if (isNaN(val) || val < 1) val = 1;
-      numChits = val;
-      renderTable();
-    });
-
-    decrementChitsBtn.addEventListener('click', () => {
-      if (numChits > 1) {
-        numChits--;
-        numChitsInput.value = numChits;
-        renderTable();
+    DOM.decChitsBtn.addEventListener('click', () => {
+      if (state.numChits > 1) {
+        state.numChits--;
+        render();
       }
     });
 
-    incrementChitsBtn.addEventListener('click', () => {
-      numChits++;
-      numChitsInput.value = numChits;
-      renderTable();
+    DOM.incChitsBtn.addEventListener('click', () => {
+      state.numChits++;
+      render();
     });
 
-    // Scheme face value adjustment
-    // document.getElementById('faceValueInput').addEventListener('input', (e) => {
-    //   const val = Number(e.target.value);
-    //   if (!isNaN(val) && val > 0) {
-    //     // Adjust week 1 amount to faceValue / 20 weeks as benchmark
-    //     chitData[0].amount = Math.round(val / 20);
-    //     renderTable();
-    //   }
-    // });
-
-    // Toggle edit mode
-    editModeToggle.addEventListener('change', (e) => {
-      editMode = e.target.checked;
-      renderTable();
-      showToast(editMode ? 'Edit Mode enabled: edit individual amounts directly.' : 'Edit Mode saved.');
+    // Reset Handler
+    DOM.resetBtn.addEventListener('click', () => {
+      state.startDate = null;
+      state.numChits = 1;
+      DOM.startDateInput.value = '';
+      DOM.numChitsInput.value = '1';
+      render();
+      showToast('Reset to initial state');
     });
 
-    // Reset button
-    resetBtn.addEventListener('click', () => {
-      chitData = JSON.parse(JSON.stringify(INITIAL_BASE_DATA));
-      startDate = '2026-07-24';
-      startDateInput.value = startDate;
-      numChits = 4;
-      numChitsInput.value = numChits;
-      editMode = false;
-      editModeToggle.checked = false;
-      renderTable();
-      showToast('Reset schedule to default values!');
-    });
+    // CSV Export Handler
+    DOM.exportCsvBtn.addEventListener('click', () => {
+      const data = calculateSchedule();
+      if (!data) return;
 
-    // Print button
-    printBtn.addEventListener('click', () => {
-      window.print();
-    });
-
-    // Export CSV feature
-    exportCsvBtn.addEventListener('click', () => {
-      const schedule = computeSchedule();
-      let csv = 'S No,Day,Amount (1 Chit),Prize (1 Chit),Month Total (1 Chit),Month Total (' + numChits + ' Chits),Amount (' + numChits + ' Chits),Prize (' + numChits + ' Chits)\n';
+      const { schedule, totalPaid1, totalPaidN } = data;
+      let csv = `S No,Day,Amount (1 Chit),Prize (1 Chit),Profit / Loss (1 Chit),Month Total (1 Chit),Month Total (${state.numChits} Chits),Amount (${state.numChits} Chits),Prize (${state.numChits} Chits),Profit / Loss (${state.numChits} Chits)\n`;
 
       schedule.forEach(row => {
-        csv += `"${row.sNo}","${row.formattedDate}","${row.amount1}","${row.prize1}","${row.groupSum1}","${row.groupSumN}","${row.amountN}","${row.prizeN}"\n`;
+        let p1 = typeof row.prize1 === 'number' ? `${row.prize1 - totalPaid1} (${(((row.prize1 - totalPaid1) / totalPaid1) * 100).toFixed(2)}%)` : '—';
+        let pN = typeof row.prizeN === 'number' ? `${row.prizeN - totalPaidN} (${(((row.prizeN - totalPaidN) / totalPaidN) * 100).toFixed(2)}%)` : '—';
+        
+        csv += `${row.sNo},${row.dateStr},${row.amount1},${row.prize1},"${p1}",${row.isGroupStart ? row.group.sum1 : ''},${row.isGroupStart ? row.group.sumN : ''},${row.amountN},${row.prizeN},"${pN}"\n`;
       });
 
-      // Total row
-      const total1 = schedule.reduce((acc, r) => acc + r.amount1, 0);
-      const totalN = schedule.reduce((acc, r) => acc + r.amountN, 0);
-      csv += `,,,,"${total1}","${totalN}",,\n`;
+      csv += `\n,,${totalPaid1},,,,${totalPaidN},,\n`;
+      csv += `Profit,,${data.schedule[19].prize1 - totalPaid1},,,,${data.schedule[19].prizeN - totalPaidN},,\n`;
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `Chit_Fund_Schedule_${numChits}_Chits_${startDate}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast('CSV Schedule downloaded!');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Chit_Fund_Schedule_${state.numChits}Chits.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('CSV downloaded successfully!');
     });
 
-    window.addEventListener('DOMContentLoaded', () => {
-      renderTable();
-    });
+    // Initial render call
+    render();
   </script>
 </body>
 </html>
